@@ -10,6 +10,8 @@ There are also 'common' instructions which cover tasks applicable to multiple de
 
 To get started, choose your demo below:
 
+[**Cognitive Car Insurance Claims**](../CongnitiveCarInsuranceClaims/Docs/README.md)
+
 [**Driveway Dent Deletion**](../DrivewayDentDeletion/Docs/README.md)
 
 [**Event Enabled Insurance**](../EventEnabledInsurance/Docs/README.md)
