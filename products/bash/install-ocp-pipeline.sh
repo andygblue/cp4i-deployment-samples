@@ -21,10 +21,14 @@ metadata:
   name: openshift-pipelines-operator
   namespace: openshift-operators
 spec:
-  channel: ocp-4.4
+  channel: ocp-4.5
   name: openshift-pipelines-operator-rh
   source: redhat-operators
   sourceNamespace: openshift-marketplace
 EOF
+
+if [ $? -ne 0 ]; then
+  exit 2
+fi
 
 echo -e "\n----------------------------------------------------------------------------------------------------------------------------------------------------------\n"

@@ -23,31 +23,39 @@
 #   Overriding the namespace and number of replicas
 #     ./release-navigator -n cp4i-prod -r 1
 
-function usage {
-    echo "Usage: $0 -n <namespace> -r <replicas>"
+function usage() {
+  echo "Usage: $0 -n <namespace> -r <replicas> -s <file storage>"
 }
 
 namespace="cp4i"
-replicas="3"
+replicas="1"
+storage="ibmc-file-gold-gid"
 
 SCRIPT_DIR="$(dirname $0)"
 echo "Current Dir: $SCRIPT_DIR"
 
-while getopts "n:r:" opt; do
+while getopts "n:r:s:" opt; do
   case ${opt} in
-    n ) namespace="$OPTARG"
-      ;;
-    r ) replicas="$OPTARG"
-      ;;
-    \? ) usage; exit
-      ;;
+  n)
+    namespace="$OPTARG"
+    ;;
+  r)
+    replicas="$OPTARG"
+    ;;
+  s)
+    storage="$OPTARG"
+    ;;
+  \?)
+    usage
+    exit
+    ;;
   esac
 done
 
 # Instantiate Platform Navigator
 echo "INFO: Instantiating Platform Navigator"
 time=0
-while ! cat <<EOF | oc apply -f -
+while ! cat <<EOF | oc apply -f -; do
 apiVersion: integration.ibm.com/v1beta1
 kind: PlatformNavigator
 metadata:
@@ -56,12 +64,14 @@ metadata:
 spec:
   license:
     accept: true
+    license: L-RJON-BXUPZ2
   mqDashboard: true
   replicas: ${replicas}
-  version: 2020.3.1
+  version: 2021.1.1
+  storage:
+    class: ibmc-file-gold-gid
 EOF
 
-do
   if [ $time -gt 10 ]; then
     echo "ERROR: Exiting installation as timeout waiting for PlatformNavigator to be created"
     exit 1
@@ -71,20 +81,18 @@ do
   sleep 60
 done
 
-# Waiting upto 60 minutes for platform navigator object to be ready
-echo "INFO: Waiting upto 60 minutes for platform navigator object to be ready"
+# Waiting upto 90 minutes for platform navigator object to be ready
+echo "INFO: Waiting upto 90 minutes for platform navigator object to be ready"
 time=0
 
 while [[ "$(oc get PlatformNavigator -n ${namespace} ${namespace}-navigator -o json | jq -r '.status.conditions[] | select(.type=="Ready").status')" != "True" ]]; do
   echo "INFO: The platform navigator object status:"
   echo "INFO: $(oc get PlatformNavigator -n ${namespace} ${namespace}-navigator)"
-  if [ $time -gt 60 ]; then
+  if [ $time -gt 90 ]; then
     echo "ERROR: Exiting installation Platform Navigator object is not ready"
     exit 1
   fi
-  echo "INFO: Waiting up to 60 minutes for platform navigator object to be ready. Waited ${time} minute(s)."
-
-  ${SCRIPT_DIR}/fix-cs-dependencies.sh
+  echo "INFO: Waiting up to 90 minutes for platform navigator object to be ready. Waited ${time} minute(s)."
 
   time=$((time + 1))
   sleep 60
