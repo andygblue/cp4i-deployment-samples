@@ -1,0 +1,17 @@
+{
+  "Name": "John Doe",
+  "EMail": "JohnDoe@us.ibm.com",
+  "Address": "3039 E Cornwallis Road, Raleigh",
+  "USState": "NC",
+  "LicensePlate": "ABC123",
+  "DentLocations": [
+    {
+      "PanelType": "Door",
+      "NumberOfDents": 2
+    },
+    {
+      "PanelType": "Fender",
+      "NumberOfDents": 1
+    }
+  ]
+}

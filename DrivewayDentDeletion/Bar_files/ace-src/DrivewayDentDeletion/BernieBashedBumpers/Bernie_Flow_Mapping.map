@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><mappingRoot xmlns="http://www.ibm.com/2008/ccl/Mapping" domainID="com.ibm.msl.mapping.xml" domainIDExtension="mb" mainMap="true" targetNamespace="default" version="8.0.5.0" xmlns:map="default">
+    <inlinedXMLSchema targetNamespace="http://www.ibm.com/iib/msl/json"><![CDATA[<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ibm.com/iib/msl/json">            
+    <xsd:complexType block="#all" name="JSONArray_1">            
+    <xsd:sequence>            
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="Item" nillable="true">            
+        <xsd:complexType>            
+          <xsd:sequence>            
+            <xsd:element name="PanelType" nillable="true" type="xsd:string"/>           
+            <xsd:element name="NumberOfDents" nillable="true" type="xsd:integer"/>            
+          </xsd:sequence>            
+        </xsd:complexType>            
+      </xsd:element>            
+    </xsd:sequence>            
+  </xsd:complexType>            
+</xsd:schema>]]></inlinedXMLSchema>
+    <inlinedXMLSchema><![CDATA[<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:Q1="http://www.ibm.com/iib/msl/json">            
+    <xsd:import namespace="http://www.ibm.com/iib/msl/json" schemaLocation="../schema_0.xsd"/>            
+                            <xsd:element name="Version" nillable="true" type="xsd:string"/>    
+    <xsd:element name="EarliestStartDate" nillable="true" type="xsd:string"/>         
+    <xsd:element name="LicensePlate" nillable="true" type="xsd:string"/>          
+    <xsd:element name="RequestID" nillable="true" type="xsd:string"/>          
+    <xsd:element name="EstimatedCost" nillable="true" type="xsd:string"/>           
+    <xsd:element name="DentLocations" nillable="true" type="Q1:JSONArray_1"/>            
+</xsd:schema>]]></inlinedXMLSchema>
+    <input path="jar:file://!com/ibm/etools/mft/map/xsds/predefined/JsonDomainMsg.xsd" var="var"/>
+    <input inlinedXMLSchema="true" path="../schema_0.xsd" var="var2"/>
+    <output path="jar:file://!com/ibm/etools/mft/map/xsds/predefined/JsonDomainMsg.xsd" var="var1"/>
+    <namespaces>
+        <namespace kind="supplement" prefix="io" uri="http://www.ibm.com/iib/msl/json"/>
+    </namespaces>
+    <generation engine="xquery"/>
+    <mappingDeclaration name="Bernie_Flow_Mapping">
+        <input namespace="http://www.ibm.com/iib/msl/json" path="$var/mb:msg(JSON,assembly,JSON,Properties,MQMD)" var="ComIbmMessageAssembly_JSON">
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON/JSON/Data/type('anyType')" qualifier="{http://www.ibm.com/iib/msl/json}JSONObject" ref="var"/>
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON/JSON/spath('Data',2)/any" qualifier="RequestID" ref="var2"/>
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON/JSON/spath('Data',2)/any" qualifier="LicensePlate" ref="var2"/>
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON/JSON/spath('Data',2)/any" qualifier="DentLocations" ref="var2"/>
+        </input>
+        <output namespace="http://www.ibm.com/iib/msl/json" path="$var1/mb:msg(JSON,assembly,JSON,Properties,MQMD)" var="ComIbmMessageAssembly_JSON1">
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON1/JSON/Data/type('anyType')" qualifier="{http://www.ibm.com/iib/msl/json}JSONObject" ref="var1"/>
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/any" qualifier="RequestID" ref="var2"/>
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/any" qualifier="LicensePlate" ref="var2"/>
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/any" qualifier="EstimatedCost" ref="var2"/>
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/any" qualifier="EarliestStartDate" ref="var2"/>
+            <cast castType="userDefined" path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/any" qualifier="Version" ref="var2"/>
+        </output>
+        <move>
+            <input path="$ComIbmMessageAssembly_JSON/Properties"/>
+            <output path="$ComIbmMessageAssembly_JSON1/Properties"/>
+        </move>
+        <expression>
+            <input path="$ComIbmMessageAssembly_JSON/JSON/spath('Data',2)/DentLocations" var="DentLocations"/>
+            <output path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/EstimatedCost"/>
+            <code lang="xpath">100*fn:sum($DentLocations/Item/NumberOfDents/text())</code>
+        </expression>
+        <move>
+            <input path="$ComIbmMessageAssembly_JSON/JSON/spath('Data',2)/RequestID"/>
+            <output path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/RequestID"/>
+        </move>
+        <move>
+            <input path="$ComIbmMessageAssembly_JSON/JSON/spath('Data',2)/LicensePlate"/>
+            <output path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/LicensePlate"/>
+        </move>
+        <expression>
+            <input path="$ComIbmMessageAssembly_JSON/JSON/spath('Data',2)/DentLocations" var="DentLocations1"/>
+            <output path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/EarliestStartDate"/>
+            <code lang="xpath">fn:substring(xs:string(fn:current-date() + xs:dayTimeDuration( "P5D")), 1, 10)</code>
+        </expression>
+        <move>
+            <input path="$ComIbmMessageAssembly_JSON/MQMD/MsgId"/>
+            <output path="$ComIbmMessageAssembly_JSON1/MQMD/CorrelId"/>
+        </move>
+        <assign value="2">
+            <output path="$ComIbmMessageAssembly_JSON1/JSON/spath('Data',2)/Version"/>
+        </assign>
+    </mappingDeclaration>
+</mappingRoot>

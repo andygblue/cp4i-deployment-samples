@@ -149,6 +149,16 @@ fi
 while true; do
   # - POST ---
   echo -e "\nPOST request..."
+"DentLocations\": [
+        {
+          \"PanelType\": \"Door\",
+          \"NumberOfDents\": 2
+        },
+        {
+          \"PanelType\": \"Fender\",
+          \"NumberOfDents\": 1
+        }
+      ]
   post_response=$(curl ${CURL_OPTS[@]} -w " %{http_code}" -X POST ${API_BASE_URL}/quote \
     -H "authorization: Basic ${API_AUTH}" \
     -H "X-IBM-CLIENT-ID: ${API_CLIENT_ID}" \
